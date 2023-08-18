@@ -19,21 +19,21 @@ use Lecturize\Addresses\Exceptions\FailedValidationException;
  */
 trait HasContacts
 {
-    public function __call($method, $parameters)
-    {
-        $available_flags = config('lecturize.contacts.flags');
-        $available_flags = array_map(function ($flag) {
-            return Str::ucfirst($flag);
-        }, $available_flags);
-
-        if (preg_match('/^get(' . implode('|', $available_flags) . ')Contact$/', $method, $matches)) {
-            $flag = strtolower($matches[1]);
-
-            return $this->getContactByFlag($flag);
-        }
-
-        return parent::__call($method, $parameters);
-    }
+    // public function __call($method, $parameters)
+    // {
+    //     $available_flags = config('lecturize.contacts.flags');
+    //     $available_flags = array_map(function ($flag) {
+    //         return Str::ucfirst($flag);
+    //     }, $available_flags);
+    // 
+    //     if (preg_match('/^get(' . implode('|', $available_flags) . ')Contact$/', $method, $matches)) {
+    //         $flag = strtolower($matches[1]);
+    // 
+    //         return $this->getContactByFlag($flag);
+    //     }
+    // 
+    //     return parent::__call($method, $parameters);
+    //  }
 
     public function contacts(): MorphMany
     {

@@ -57,7 +57,7 @@ trait HasAddresses
         return $this->addresses()->delete();
     }
 
-    public function getAddress(string $flag, string $direction = 'desc', bool $strict = false): ?Address
+    public function getAddress(string $flag = null, string $direction = 'desc', bool $strict = false): ?Address
     {
         if (! $this->hasAddresses()) {
             return null; // short circuit if no addresses exist
@@ -100,10 +100,6 @@ trait HasAddresses
                     return $address;
                 }
             }
-        }
-
-        if ($strict) {
-            return null;
         }
 
         /**

@@ -57,7 +57,7 @@ trait HasAddresses
         return $this->addresses()->delete();
     }
 
-    public function getAddress(string $flag, string $direction = 'desc'): ?Address
+    public function getAddress(string $flag, string $direction = 'desc', bool $strict = false): ?Address
     {
         if (! $this->hasAddresses()) {
             return null; // short circuit if no addresses exist
@@ -73,6 +73,10 @@ trait HasAddresses
 
             if ($address !== null) {
                 return $address;
+            }
+
+            if ($strict) {
+                return null;
             }
 
             /**
@@ -98,6 +102,10 @@ trait HasAddresses
             }
         }
 
+        if ($strict) {
+            return null;
+        }
+
         /**
          * should the default fallback logic fail, try to get the first or last address
          */
@@ -113,19 +121,19 @@ trait HasAddresses
     /** @deprecated use getAddress('primary', $direction) instead */
     public function getPrimaryAddress(string $direction = 'desc'): ?Address
     {
-        return $this->getAddress('primary', $direction);
+        return $this->getAddress('primary', $direction, true);
     }
 
     /** @deprecated use getAddress('billing', $direction) instead */
     public function getBillingAddress(string $direction = 'desc'): ?Address
     {
-        return $this->getAddress('billing', $direction);
+        return $this->getAddress('billing', $direction, true);
     }
 
     /** @deprecated use getAddress('shipping', $direction) instead */
     public function getShippingAddress(string $direction = 'desc'): ?Address
     {
-        return $this->getAddress('shipping', $direction);
+        return $this->getAddress('shipping', $direction, true);
     }
 
     /** @throws FailedValidationException */

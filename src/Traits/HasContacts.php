@@ -82,7 +82,7 @@ trait HasContacts
         return validator($attributes, $rules);
     }
 
-    public function getContact(string $flag, string $direction = 'desc'): ?Address
+    public function getContact(string $flag, string $direction = 'desc', bool $strict = false): ?Address
     {
         if (! $this->hasContacts()) {
             return null; // short circuit if no contactes exist
@@ -98,6 +98,10 @@ trait HasContacts
 
             if ($contact !== null) {
                 return $contact;
+            }
+
+            if ($strict) {
+                return null;
             }
 
             /**

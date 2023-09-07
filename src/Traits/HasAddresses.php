@@ -7,6 +7,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Str;
 
 use Lecturize\Addresses\Models\Address;
 use Lecturize\Addresses\Exceptions\FailedValidationException;
@@ -19,10 +20,34 @@ use Lecturize\Addresses\Models\Country;
  */
 trait HasAddresses
 {
+    /**
+     * This method allows for dynamic method calls to retrieve addresses by their associated flags,
+     * which can be useful for managing addresses with different purposes or locations
+     *
+     * @param string $method
+     * @param array $parameters
+     *
+     */
+    public function __call($method, $parameters)
+    {
+        $available_flags = config('lecturize.addresses.flags');
+        $available_flags = array_map(function ($flag) {
+            return Str::ucfirst($flag);
+        }, $available_flags);
+
+        if (preg_match('/^get(' . implode('|', $available_flags) . ')Address$/', $method, $matches)) {
+            $flag = strtolower($matches[1]);
+
+            return $this->getAddressByFlag($flag, $parameters[0] ?? 'desc');
+        }
+
+        return parent::__call($method, $parameters);
+    }
+
     public function addresses(): MorphMany
     {
         /** @var Model $this */
-        return $this->morphMany(Address::class, 'addressable');
+        return $this->morphMany(config('lecturize.addresses.model', Address::class), 'addressable');
     }
 
     public function hasAddresses(): bool
@@ -56,7 +81,7 @@ trait HasAddresses
     {
         return $this->addresses()->delete();
     }
-
+    
     public function getAddress(string $flag = null, string $direction = 'desc', bool $strict = false): ?Address
     {
         if (! $this->hasAddresses()) {
@@ -163,7 +188,8 @@ trait HasAddresses
 
     function validateAddress(array $attributes): Validator
     {
-        $rules = (new Address)->getValidationRules();
+        $model = config('lecturize.addresses.model', Address::class);
+        $rules = (new $model)->getValidationRules();
 
         return validator($attributes, $rules);
     }

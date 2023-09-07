@@ -11,6 +11,11 @@ return [
         'table' => 'addresses',
 
         /*
+         * The model used for addresses.
+         */
+        'model' => \Lecturize\Addresses\Models\Address::class,
+
+        /*
          * Flag columns to be added to table.
          */
         'flags' => ['public', 'primary', 'billing', 'shipping'],
@@ -32,6 +37,7 @@ return [
          * Default: false
          */
         'geocode' => false,
+				'google_maps_api_key' => null,
     ],
 
     /*
@@ -42,6 +48,11 @@ return [
          * Main table.
          */
         'table' => 'contacts',
+
+        /*
+         * The model used for contacts.
+         */
+        'model' => \Lecturize\Addresses\Models\Contact::class,
 
         /*
          * Flag columns to be added to table.

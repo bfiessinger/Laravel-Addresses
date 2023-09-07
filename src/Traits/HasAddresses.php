@@ -81,21 +81,27 @@ trait HasAddresses
     {
         return $this->addresses()->delete();
     }
-
-    protected function getAddressByFlag(?string $flag = null, string $direction = 'desc'): ?Address
+    
+    public function getAddress(string $flag = null, string $direction = 'desc', bool $strict = false): ?Address
     {
         if (! $this->hasAddresses()) {
             return null; // short circuit if no addresses exist
         }
 
+        $direction = strtoupper($direction) === 'ASC' ? 'ASC' : 'DESC';
+
         if ($flag !== null) {
-            $search_flag = 'is_' . $flag;
-            $address = $this->addresses()->where($search_flag, true)
-                ->orderBy($search_flag, $direction)
+            $address = $this->addresses()
+                ->flag($flag, true)
+                ->orderBy('is_' . $flag, $direction)
                 ->first();
 
             if ($address !== null) {
                 return $address;
+            }
+
+            if ($strict) {
+                return null;
             }
 
             /**
@@ -106,14 +112,14 @@ trait HasAddresses
 
             /**
              * fallback order is an array of flags like: ['public', 'primary', 'billing', 'shipping']
-             * when calling getBillingAddress() and no address with the billing flag exists, the next earliest flag is used
+             * when calling getAddress('billing') and no address with the billing flag exists, the next earliest flag is used
              * in this case, the flag 'primary' would be used
              */
             $current_flag_index = array_search($flag, $fallback_order);
             $try_flag = $fallback_order[$current_flag_index - 1] ?? null;
 
             if ($try_flag !== null) {
-                $address = $this->getAddressByFlag($try_flag, $direction);
+                $address = $this->getAddress($try_flag, $direction);
 
                 if ($address !== null) {
                     return $address;
@@ -124,13 +130,31 @@ trait HasAddresses
         /**
          * should the default fallback logic fail, try to get the first or last address
          */
-        if (! $address && $direction === 'desc') {
+        if (! $address && $direction === 'DESC') {
             return $this->addresses()->first();
-        } elseif (! $address && $direction === 'asc') {
+        } elseif (! $address && $direction === 'ASC') {
             return $this->addresses()->last();
         }
 
         return null;
+    }
+
+    /** @deprecated use getAddress('primary', $direction) instead */
+    public function getPrimaryAddress(string $direction = 'desc'): ?Address
+    {
+        return $this->getAddress('primary', $direction, true);
+    }
+
+    /** @deprecated use getAddress('billing', $direction) instead */
+    public function getBillingAddress(string $direction = 'desc'): ?Address
+    {
+        return $this->getAddress('billing', $direction, true);
+    }
+
+    /** @deprecated use getAddress('shipping', $direction) instead */
+    public function getShippingAddress(string $direction = 'desc'): ?Address
+    {
+        return $this->getAddress('shipping', $direction, true);
     }
 
     /** @throws FailedValidationException */

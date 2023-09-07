@@ -251,19 +251,20 @@ class Address extends Model
         return $query->where('is_'.$flag, true);
     }
 
-    /* Deprecated: use scopeFlag('primary') instead */
+    /** @deprecated use scopeFlag('primary') instead */
     public function scopePrimary(Builder $query): Builder
     {
         return $query->where('is_primary', true);
     }
 
-    /* Deprecated: use scopeFlag('billing') instead */
+
+    /** @deprecated use scopeFlag('billing') instead */
     public function scopeBilling(Builder $query): Builder
     {
         return $query->where('is_billing', true);
     }
 
-    /* Deprecated: use scopeFlag('shipping') instead */
+    /** @deprecated use scopeFlag('shipping') instead */
     public function scopeShipping(Builder $query): Builder
     {
         return $query->where('is_shipping', true);
